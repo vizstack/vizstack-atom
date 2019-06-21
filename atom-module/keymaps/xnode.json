@@ -1,0 +1,5 @@
+{
+  "atom-workspace": {
+    "cmd-alt-ctrl-x": "xnode:create-sandbox"
+  }
+}

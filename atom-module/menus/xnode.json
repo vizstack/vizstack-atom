@@ -1,0 +1,30 @@
+{
+    "context-menu": {
+        "atom-text-editor": [
+            {
+                "type": "separator"
+            }, {
+                "label": "Show Xnode Canvas",
+                "command": "xnode:show-canvas"
+            }, {
+                "type": "separator"
+            }
+        ]
+  },
+    "menu": [
+        {
+            "label": "Packages",
+            "submenu": [
+                {
+                    "label": "Xnode",
+                    "submenu": [
+                        {
+                          "label": "Show Xnode Canvas",
+                          "command": "xnode:show-canvas"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
