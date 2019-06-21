@@ -2,14 +2,14 @@ from typing import Any, Dict, Union, Optional
 from inspect import currentframe, getframeinfo
 from types import FrameType
 
-import xnode
+import vizstack
 import json
 import sys
 
 
 def view(*args: Any):
     for arg in args:
-        view_spec: str = xnode.assemble(arg)
+        view_spec: str = vizstack.assemble(arg)
         frame: Optional[FrameType] = currentframe()
         assert frame is not None
         frame_info = getframeinfo(frame.f_back)

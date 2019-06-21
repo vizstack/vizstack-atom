@@ -96,7 +96,7 @@ class _PrintOverwriter:
 
     def write(self, text: str) -> None:
         # These all need to be imported directly into this scope
-        import xnode
+        import vizstack
         import visual_debugger
         import sys
         import json
@@ -114,7 +114,7 @@ class _PrintOverwriter:
             if self._unprinted_text.endswith('\n') and len(self._unprinted_text.strip()) > 0:
                 # If we just call visual_debugger.view(), the stack has one too many frames and the View won't appear to
                 # have come from the correct file
-                view_spec: str = xnode.assemble(self._unprinted_text.strip())
+                view_spec: str = vizstack.assemble(self._unprinted_text.strip())
                 frame: Optional[FrameType] = currentframe()
                 assert frame is not None
                 frame_info = getframeinfo(frame.f_back)
@@ -191,9 +191,9 @@ def _main() -> None:
         # Import all of these, since they might have been removed when running the user's script
         import traceback
         import visual_debugger
-        import xnode
+        import vizstack
         import re
-        from xnode.view import Text
+        from vizstack.view import Text
         raw_error_msg: str = traceback.format_exc()
         try:
             result = re.search(
@@ -207,13 +207,13 @@ def _main() -> None:
                 clean_error_msg, re.DOTALL
             )
             assert result is not None
-            visual_debugger._send_message(result.group(1), int(result.group(2)), xnode.assemble(
+            visual_debugger._send_message(result.group(1), int(result.group(2)), vizstack.assemble(
                 Text(clean_error_msg, 'error', 'token')
             ), False, True, sys.__stdout__)
         except:
             try:
                 # if something goes wrong in parsing the traceback, write it directly
-                visual_debugger._send_message('engine.py', 0, xnode.assemble(
+                visual_debugger._send_message('engine.py', 0, vizstack.assemble(
                     Text(raw_error_msg, 'error', 'token')
                 ), False, True, sys.__stdout__)
             except:

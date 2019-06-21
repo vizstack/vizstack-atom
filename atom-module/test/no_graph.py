@@ -1,5 +1,5 @@
 import visual_debugger
-from xnode.view import Flow, Text, Switch, Grid
+from vizstack import Flow, Text, Switch, Grid
 
 
 def my_fn(x, y):
@@ -13,7 +13,7 @@ class MyClass:
     def fn(x, y, z=5):
         return 0
 
-    def xn(self):
+    def __view__(self):
         return Flow(
             [
                 Text(
@@ -22,7 +22,7 @@ class MyClass:
                     '2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney '
                     'College in Virginia, looked up one of the more obscure Latin words, '
                     'consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of "de Finibus Bonorum et Malorum" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, "Lorem ipsum dolor sit amet..", comes from a line in section 1.10.32.'
-                ), [10, 20, 30], [40, 50, 60], 'and on and on and on and on and on and on'
+                ), [10, 20, 30], [40, 50, 60], Text('and on and on and on and on and on and on')
             ]
         )
 
@@ -41,3 +41,8 @@ visual_debugger.view(my_fn)
 
 l = [10, 2, 3, 2341, 2134, 2134, 213, 2134]
 visual_debugger.view(l)
+
+g = Grid(items={'A': 'hello', 'B': 'world'})
+g.cell('A', 0, 0, 1, 1)
+g.cell('B', 1, 1, 1, 1)
+visual_debugger.view(g)
