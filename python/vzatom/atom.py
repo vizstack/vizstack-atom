@@ -7,6 +7,9 @@ import json
 import sys
 
 
+__all__ = ['view', '_send_message']
+
+
 def view(*args: Any):
     for arg in args:
         view_spec: str = vizstack.assemble(arg)

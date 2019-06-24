@@ -1,8 +1,8 @@
-import visual_debugger
+import vzatom
 from vizstack import Flow, Text, Switch, Grid
 
 
-def my_fn(x, y):
+def my_fn(x, y=5):
     return 0
 
 
@@ -27,22 +27,22 @@ class MyClass:
         )
 
 
-visual_debugger.view(MyClass())
+vzatom.view(MyClass())
 
 b = {}
 a = {'x': b, 'y': {'d': 'b'}}
 b['y'] = a
 
-visual_debugger.view(b)
+vzatom.view(b)
 
-visual_debugger.view(visual_debugger)
+vzatom.view(vzatom)
 
-visual_debugger.view(my_fn)
+vzatom.view(my_fn)
 
 l = [10, 2, 3, 2341, 2134, 2134, 213, 2134]
-visual_debugger.view(l)
+vzatom.view(l)
 
 g = Grid(items={'A': 'hello', 'B': 'world'})
 g.cell('A', 0, 0, 1, 1)
 g.cell('B', 1, 1, 1, 1)
-visual_debugger.view(g)
+vzatom.view(g)

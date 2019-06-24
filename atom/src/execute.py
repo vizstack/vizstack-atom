@@ -97,7 +97,7 @@ class _PrintOverwriter:
     def write(self, text: str) -> None:
         # These all need to be imported directly into this scope
         import vizstack
-        import visual_debugger
+        import vzatom
         import sys
         import json
         from inspect import currentframe, getframeinfo
@@ -112,14 +112,14 @@ class _PrintOverwriter:
         except (json.decoder.JSONDecodeError, AssertionError):
             self._unprinted_text += text
             if self._unprinted_text.endswith('\n') and len(self._unprinted_text.strip()) > 0:
-                # If we just call visual_debugger.view(), the stack has one too many frames and the View won't appear to
+                # If we just call vzatom.view(), the stack has one too many frames and the View won't appear to
                 # have come from the correct file
                 view_spec: str = vizstack.assemble(self._unprinted_text.strip())
                 frame: Optional[FrameType] = currentframe()
                 assert frame is not None
                 frame_info = getframeinfo(frame.f_back)
                 filename, line_number = frame_info.filename, frame_info.lineno
-                visual_debugger._send_message(filename, line_number, view_spec, False, False, sys.__stdout__)
+                vzatom._send_message(filename, line_number, view_spec, False, False, sys.__stdout__)
                 self._unprinted_text = ''
 
     def flush(self) -> None:
@@ -168,7 +168,7 @@ def _main() -> None:
 
     # For some reason, these have to be imported in this scope, not in the global scope. TODO figure out why
     import sys
-    import visual_debugger
+    import vzatom
 
     # Replace stdout with an object that queues all statements printed by the user script as messages
     sys.stdout = _PrintOverwriter()  # type: ignore
@@ -183,14 +183,14 @@ def _main() -> None:
     assert script_path is not None
 
     try:
-        visual_debugger._send_message(None, None, None, True, False, sys.__stdout__)
+        vzatom._send_message(None, None, None, True, False, sys.__stdout__)
         executor.execute(script_path, script_args)
         # Indicate to the client that the script has finished executing
-        visual_debugger._send_message(None, None, None, False, True, sys.__stdout__)
+        vzatom._send_message(None, None, None, False, True, sys.__stdout__)
     except:
         # Import all of these, since they might have been removed when running the user's script
         import traceback
-        import visual_debugger
+        import vzatom
         import vizstack
         import re
         from vizstack.view import Text
@@ -207,13 +207,13 @@ def _main() -> None:
                 clean_error_msg, re.DOTALL
             )
             assert result is not None
-            visual_debugger._send_message(result.group(1), int(result.group(2)), vizstack.assemble(
+            vzatom._send_message(result.group(1), int(result.group(2)), vizstack.assemble(
                 Text(clean_error_msg, 'error', 'token')
             ), False, True, sys.__stdout__)
         except:
             try:
                 # if something goes wrong in parsing the traceback, write it directly
-                visual_debugger._send_message('engine.py', 0, vizstack.assemble(
+                vzatom._send_message('engine.py', 0, vizstack.assemble(
                     Text(raw_error_msg, 'error', 'token')
                 ), False, True, sys.__stdout__)
             except:
