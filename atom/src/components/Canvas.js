@@ -18,7 +18,7 @@ import type {
 
 // Xnode core
 import { Viewer, InteractionManager, InteractionContext } from 'vizstack-core';
-import type { ViewId } from 'vizstack-core';
+import type { ViewId, ViewerHandle } from 'vizstack-core';
 
 import ViewerDisplayFrame from './ViewerDisplayFrame';
 import DuplicateIcon from '@material-ui/icons/FileCopyOutlined';
@@ -76,8 +76,8 @@ type CanvasState = {};
  * displays a collection of `SnapshotInspector` objects that can be moved with drag-and-drop.
  */
 class Canvas extends React.Component<CanvasProps, CanvasState> {
-    interactionManager: InteractionManager;
-    viewerRefs = [];  // Refs to each top-level viewer, used to get viewer IDs for interaction
+    im: InteractionManager;
+    viewerRefs: Array<{current: null | Viewer}> = [];  // Refs to each top-level viewer, used to get viewer IDs for interaction
 
     static defaultProps = {
         documentElement: document,
@@ -90,38 +90,29 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
 
         const { documentElement } = props;
 
-        this.interactionManager = new InteractionManager({documentElement});
-        // Whenever "Tab" is pressed, cycle between top-level viewers
-        this.interactionManager.getAllComponents()
-            .subscribe('onKeyDown', (message, subscriber, state) => {
+        this.im = new InteractionManager({documentElement});
+        this.im.on<{|topic: 'KeyDown', message: {|key: string|}|}>('KeyDown',
+            (all, message, global) => {
                 if (message.key === 'Tab') {
-                    const viewerIds = this.viewerRefs.map((ref) => ref.current.viewerId);
-                    // TODO: right now, every viewer will fire this if there's nothing selected
-                    let nextIdx = -1;
-                    if (state.selected === subscriber.viewerId) {
-                        // Find the top-level viewer the selected viewer is a descendant of
-                        let currViewer = subscriber;
-                        while (nextIdx === -1 && currViewer) {
-                            nextIdx = viewerIds.indexOf(currViewer.viewerId);
-                            currViewer = subscriber.parent;
+                    const rootViewerIds = this.viewerRefs
+                        .filter((ref) => ref.current)
+                        .map((ref) => ref.current.viewerId);
+                    let nextIdx = 0;
+                    all.id(global.selected).forEach((viewer) => {
+                        viewer.doUnhighlight();
+                        let currViewer = viewer;
+                        while (!rootViewerIds.includes((currViewer.id))) {
+                            currViewer = currViewer.parent;
                         }
-                        // Increment one to select the next top-level viewer
-                        nextIdx += 1;
-                        this.interactionManager.publish({
-                            eventName: 'unhighlight',
-                            message: { viewerId: subscriber.viewerId, },
-                        });
-                    }
-                    if (!state.selected || state.selected === subscriber.viewerId) {
-                        if (nextIdx === -1 || nextIdx === viewerIds.length) {
+                        nextIdx = rootViewerIds.indexOf(currViewer.id) + 1;
+                        if (nextIdx === rootViewerIds.length) {
                             nextIdx = 0;
                         }
-                        state.selected = viewerIds[nextIdx];
-                        this.interactionManager.publish({
-                            eventName: 'highlight',
-                            message: { viewerId: state.selected, },
-                        });
-                    }
+                    });
+                    global.selected = rootViewerIds[nextIdx];
+                    all.id(global.selected).forEach((viewer) => {
+                        viewer.doHighlight();
+                    });
                 }
             });
     }
@@ -212,7 +203,7 @@ class Canvas extends React.Component<CanvasProps, CanvasState> {
         );
 
         return (
-            <InteractionContext.Provider value={this.interactionManager.getContext()}>
+            <InteractionContext.Provider value={this.im.getContextValue()}>
                 <div className={classNames(classes.canvasContainer)}>
                     <DragDropContext onDragEnd={this.onDragEnd}>
                         <Droppable droppableId='canvas'>
