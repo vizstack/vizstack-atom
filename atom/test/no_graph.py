@@ -26,6 +26,7 @@ class MyClass:
             ]
         )
 
+vzatom.view('hello')
 
 vzatom.view(MyClass())
 

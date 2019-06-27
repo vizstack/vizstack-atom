@@ -20,12 +20,12 @@ def view(*args: Any):
         _send_message(filename, line_number, view_spec, False, False, sys.stdout)
 
 
-def _send_message(filename: Optional[str], line_number: Optional[int], view_spec: Optional[str], script_start: bool,
+def _send_message(filename: Optional[str], line_number: Optional[int], view_spec, script_start: bool,
                   script_end: bool, file) -> None:
     print(json.dumps({
         'filePath': filename,
         'lineNumber': line_number,
-        'view': json.loads(view_spec) if view_spec is not None else None,
+        'view': view_spec if view_spec is not None else None,
         'scriptStart': script_start,
         'scriptEnd': script_end,
     }), file=file)
